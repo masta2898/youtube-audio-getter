@@ -55,7 +55,9 @@ class Bot:
 
     async def __echo(self, message: types.Message):
         """Repeats your message."""
-        await self.bot.send_message(message.chat.id, message.get_args())
+        text = message.get_args()
+        if text:
+            await self.bot.send_message(message.chat.id, text)
 
     async def __set_time(self, message: types.Message):
         """Set time in minutes to divide video to parts."""
