@@ -9,7 +9,3 @@ class GetAudio:
         video = YouTube(link)
 
         video.streams.filter(only_audio=True).first().download()
-
-
-
-
