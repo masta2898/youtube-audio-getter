@@ -55,9 +55,9 @@ class Bot:
             del self.__sessions[user_id]
 
     def __register_commands(self):
-        self.dispatcher.register_message_handler(self.__get_audio, lambda msg: self.__is_url)
         for handler, commands in self.__handlers.items():
             self.dispatcher.register_message_handler(handler, commands=commands)
+        self.dispatcher.register_message_handler(self.__get_audio, self.__is_url)
 
     def __is_url(self, message: types.Message):
         return message.entities[0].type == "url" if len(message.entities) == 1 else False
@@ -84,4 +84,4 @@ class Bot:
         pass
 
     async def __get_audio(self, message: types.Message):
-        pass
+        await self.bot.send_message(message.chat.id, "got url!")
