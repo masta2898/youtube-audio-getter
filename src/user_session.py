@@ -22,5 +22,5 @@ class UserSession:
     def get_audio(self, url) -> List[AudioFile]:
         audio_files: List[AudioFile] = ()
         if self.__audio_getter:
-            audio_files = self.__audio_getter.get_audio(url, self.__part_len)
+            audio_files = self.__audio_getter.get_audio(url)
         return audio_files

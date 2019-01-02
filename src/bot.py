@@ -1,12 +1,15 @@
 import inspect
 import asyncio
 import logging
+from typing import List
 
 from aiogram import Bot as AiogramBot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils.executor import start_webhook
 
+from src.audio_file import AudioFile
 from src.user_session import UserSession
+from src.youtube_audio_getter import YoutubeAudioGetter
 
 
 class Bot:
@@ -81,7 +84,32 @@ class Bot:
 
     async def __set_time(self, message: types.Message):
         """Set time in minutes to divide video to parts."""
-        pass
+        chat_id = message.chat.id
+        time = message.get_args()
+        if len(time) != 1:
+            return await self.bot.send_message(chat_id, "Set time in seconds!")
+
+        try:
+            time = int(time[0])
+        except ValueError:
+            return await self.bot.send_message(chat_id, "Invalid time!")
+
+        if chat_id in self.__sessions:
+            self.__sessions[chat_id].set_part_time(time)
 
     async def __get_audio(self, message: types.Message):
-        await self.bot.send_message(message.chat.id, "got url!")
+        chat_id = message.chat.id
+        if chat_id not in self.__sessions:
+            self.__sessions[chat_id] = UserSession(chat_id)
+
+        current_session: UserSession = self.__sessions[chat_id]
+        audio_getter = YoutubeAudioGetter()
+        part_time = current_session.get_part_time()
+        if part_time > 0:
+            audio_getter.set_part_len(part_time)
+            current_session.set_audio_getter(audio_getter)
+
+        url = message.entities[0].get_text(message.text)
+        audio_files: List[AudioFile] = current_session.get_audio(url)
+        for audio_file in audio_files:
+            await self.bot.send_audio(chat_id, audio_file.get_data(), audio_file.get_name())
