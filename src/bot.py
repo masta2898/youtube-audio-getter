@@ -47,7 +47,7 @@ class Bot:
         if user_id in self.__sessions:
             del self.__sessions[user_id]
             self.__sessions[user_id] = UserSession(user_id)
-            await self.bot.send_message(user_id, "Hey! Use /help to get list of commands. Send url to download audio.")
+        await self.bot.send_message(user_id, "Hey! Use /help to get list of commands. Send url to download audio.")
 
     async def __stop(self, message: types.Message):
         user_id = message.chat.id
