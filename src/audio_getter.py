@@ -7,5 +7,5 @@ from src.audio_file import AudioFile
 class AudioGetter:
     metaclass = ABCMeta
 
-    def get_audio(self, url: str, part_len: int = 0) -> List[AudioFile]:
+    def get_audio(self, url: str) -> List[AudioFile]:
         pass
