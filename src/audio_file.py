@@ -1,14 +1,7 @@
 class AudioFile:
-    def __init__(self, author, name, data):
-        self.__author = author
+    def __init__(self, name, data):
         self.__name = name
         self.__data = data
-
-    def set_author(self, author):
-        self.__author = author
-
-    def get_author(self):
-        return self.__author
 
     def set_name(self, name):
         self.__name = name
