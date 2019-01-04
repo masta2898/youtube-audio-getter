@@ -9,7 +9,6 @@ from src.audio_file import AudioFile
 
 
 class YoutubeAudioGetter(AudioGetter):
-
     def __init__(self):
         self.__path = "../media/"
         self.__part_len = 600
@@ -26,15 +25,12 @@ class YoutubeAudioGetter(AudioGetter):
     def get_part_len(self):
         return self.__part_len
 
-    def __video_download(self, url: str):
-
+    def __download_video(self, url: str):
         video = YouTube(url)
         video.streams.filter(only_audio=True).first().download(output_path=self.get_path(), filename=video.title)
-
         return int(video.length), video.title
 
-    def __video_cut(self, save_path: str, title: str, start: int, end: int):
-
+    def __cut_video(self, save_path: str, title: str, start: int, end: int):
         part_name = "{0}-{1}|{2}".format(timedelta(seconds=start), timedelta(seconds=end), title)
         file_name = "{0}{1}.{2}".format(save_path, title, "mp4")
         target_name = "{0}{1}.{2}".format(save_path, part_name, "mp4")
@@ -44,33 +40,27 @@ class YoutubeAudioGetter(AudioGetter):
         return part_name, target_name
 
     def get_audio(self, url: str) -> List[AudioFile]:
-
-        audio_file = []
         start_part = 0
 
         part_len = self.get_part_len()
         path = self.get_path()
 
-        video_len, video_title = self.__video_download(url)
-
+        video_len, video_title = self.__download_video(url)
         end_part = video_len if part_len >= video_len else part_len
+        segment_count = int((video_len / 60) // (part_len / 60) + 1)
 
-        segment_nums = int((video_len / 60) // (part_len / 60) + 1)
-
-        for segment_num in range(segment_nums):
-
-            part_name, target_name = self.__video_cut(path, video_title, start_part, end_part)
-
+        audio_files = []
+        for segment_num in range(segment_count):
+            part_name, target_name = self.__cut_video(path, video_title, start_part, end_part)
             start_part = end_part
-
             end_part += part_len
-
             if end_part > video_len:
                 end_part = video_len - start_part
 
-            audio_file.append(AudioFile(part_name, open(target_name, "rb")))
+            with open(target_name, "rb") as file:
+                audio_files.append(AudioFile(part_name, file.read()))
 
-        return audio_file
+        return audio_files
 
 
 if __name__ == "__main__":
