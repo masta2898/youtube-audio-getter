@@ -1,7 +1,7 @@
 from typing import List
 from datetime import timedelta
 
-from moviepy.editor import *
+from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from pytube import YouTube
 
 from src.audio_getter import AudioGetter
@@ -26,37 +26,32 @@ class YoutubeAudioGetter(AudioGetter):
     def get_part_len(self):
         return self.__part_len
 
-    def __download_video(self, url: str):
-
-        video_name = self.get_random_string(7)
+    def __video_download(self, url: str):
 
         video = YouTube(url)
-        video.streams.filter(only_audio=True).first().download(output_path=self.get_path(), filename=video_name)
+        video.streams.filter(only_audio=True).first().download(output_path=self.get_path(), filename=video.title)
 
-        return int(video.length)-2, video.title, video_name
+        return int(video.length), video.title
 
-    def __cut_video(self, save_path: str, title: str, name: str, start: int, end: int):
-
-        audio_name = self.get_random_string(9)
+    def __video_cut(self, save_path: str, title: str, start: int, end: int):
 
         part_name = "{0}-{1}|{2}".format(timedelta(seconds=start), timedelta(seconds=end), title)
-        file_name = "{0}{1}.{2}".format(save_path, name, "mp4")
-        target_name = "{0}{1}.{2}".format(save_path, audio_name, "mp3")
+        file_name = "{0}{1}.{2}".format(save_path, title, "mp4")
+        target_name = "{0}{1}.{2}".format(save_path, part_name, "mp4")
 
-        audio = AudioFileClip(file_name).subclip(start, end)
-        audio.write_audiofile(target_name)
+        ffmpeg_extract_subclip(file_name, start, end, targetname=target_name)
 
         return part_name, target_name
 
     def get_audio(self, url: str) -> List[AudioFile]:
 
-        audio_files = []
+        audio_file = []
         start_part = 0
 
         part_len = self.get_part_len()
         path = self.get_path()
 
-        video_len, video_title, video_name = self.__download_video(url)
+        video_len, video_title = self.__video_download(url)
 
         end_part = video_len if part_len >= video_len else part_len
 
@@ -64,27 +59,25 @@ class YoutubeAudioGetter(AudioGetter):
 
         for segment_num in range(segment_nums):
 
-            part_name, target_name = self.__cut_video(path, video_title, video_name, start_part, end_part)
+            part_name, target_name = self.__video_cut(path, video_title, start_part, end_part)
 
             start_part = end_part
 
             end_part += part_len
 
             if end_part > video_len:
-                end_part = video_len
+                end_part = video_len - start_part
 
-            with open(target_name, "rb") as file:
-                audio_files.append(AudioFile(part_name, file.read()))
+            audio_file.append(AudioFile(part_name, open(target_name, "rb")))
 
-            os.remove(target_name)
-
-        os.remove("{0}{1}.{2}".format(path, video_name, "mp4"))
-        return audio_files
+        return audio_file
 
 
 if __name__ == "__main__":
 
-
     obj = YoutubeAudioGetter()
 
-    data = obj.get_audio("https://www.youtube.com/watch?v=w62rEg6PSm8")
+    data = obj.get_audio("https://www.youtube.com/watch?v=_l4XR--u5_g")
+
+
+
