@@ -1,3 +1,5 @@
+import random
+import string
 from typing import List
 from datetime import timedelta
 
@@ -9,7 +11,6 @@ from src.audio_file import AudioFile
 
 
 class YoutubeAudioGetter(AudioGetter):
-
     def __init__(self):
         self.__path = "../media/"
         self.__part_len = 600
@@ -28,7 +29,7 @@ class YoutubeAudioGetter(AudioGetter):
 
     def __download_video(self, url: str):
 
-        video_name = self.get_random_string(7)
+        video_name = self.__get_random_string(7)
 
         video = YouTube(url)
         video.streams.filter(only_audio=True).first().download(output_path=self.get_path(), filename=video_name)
@@ -37,7 +38,7 @@ class YoutubeAudioGetter(AudioGetter):
 
     def __cut_video(self, save_path: str, title: str, name: str, start: int, end: int):
 
-        audio_name = self.get_random_string(9)
+        audio_name = self.__get_random_string(9)
 
         part_name = "{0}-{1}|{2}".format(timedelta(seconds=start), timedelta(seconds=end), title)
         file_name = "{0}{1}.{2}".format(save_path, name, "mp4")
@@ -47,6 +48,10 @@ class YoutubeAudioGetter(AudioGetter):
         audio.write_audiofile(target_name)
 
         return part_name, target_name
+
+
+    def __get_random_string(self, len: int):
+        return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(len))
 
     def get_audio(self, url: str) -> List[AudioFile]:
 
