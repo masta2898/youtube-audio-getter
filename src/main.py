@@ -1,10 +1,7 @@
 import os
 
-import imageio
-
 from src.bot import Bot
 
-imageio.plugins.ffmpeg.download()
 
 API_TOKEN = '731824033:AAGHUrLFC0cH-66SYksu8VkfanQ77wqkV7g'
 
