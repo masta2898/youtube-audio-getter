@@ -85,7 +85,7 @@ class Bot:
     async def __set_time(self, message: types.Message):
         """Set time in minutes to divide video to parts."""
         chat_id = message.chat.id
-        time = message.get_args()
+        time = message.get_args().split()
         if len(time) != 1:
             return await self.bot.send_message(chat_id, "Set time in seconds!")
 
@@ -107,7 +107,7 @@ class Bot:
         part_time = current_session.get_part_time()
         if part_time > 0:
             audio_getter.set_part_len(part_time)
-            current_session.set_audio_getter(audio_getter)
+        current_session.set_audio_getter(audio_getter)
 
         url = message.entities[0].get_text(message.text)
         logging.info(f"Getting audio files from {url}")
