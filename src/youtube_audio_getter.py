@@ -1,5 +1,6 @@
 import random
 import string
+import logging
 from typing import List
 from datetime import timedelta
 
@@ -28,7 +29,7 @@ class YoutubeAudioGetter(AudioGetter):
         return self.__part_len
 
     def __download_video(self, url: str):
-
+        logging.info(f"Downloading video from: {url}")
         video_name = self.__get_random_string(7)
 
         video = YouTube(url)
@@ -37,7 +38,7 @@ class YoutubeAudioGetter(AudioGetter):
         return int(video.length)-2, video.title, video_name
 
     def __cut_video(self, save_path: str, title: str, name: str, start: int, end: int):
-
+        logging.info(f"Cutting video from: {save_path} from {start} to {end}")
         audio_name = self.__get_random_string(9)
 
         part_name = "{0}-{1}|{2}".format(timedelta(seconds=start), timedelta(seconds=end), title)
@@ -54,7 +55,7 @@ class YoutubeAudioGetter(AudioGetter):
         return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(len))
 
     def get_audio(self, url: str) -> List[AudioFile]:
-
+        logging.info(f"Getting audio from {url}")
         audio_files = []
         start_part = 0
 
@@ -83,6 +84,7 @@ class YoutubeAudioGetter(AudioGetter):
 
             os.remove(target_name)
 
+        logging.info(f"Removing old file {path} with {video_name}")
         os.remove("{0}{1}.{2}".format(path, video_name, "mp4"))
         return audio_files
 
