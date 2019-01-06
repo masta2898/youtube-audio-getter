@@ -110,8 +110,8 @@ class Bot:
         current_session.set_audio_getter(audio_getter)
 
         url = message.entities[0].get_text(message.text)
-        logging.info(f"Getting audio files from {url}")
+        await self.bot.send_message(chat_id, f"Getting audio files from {url}")
         audio_files: List[AudioFile] = current_session.get_audio(url)
         for audio_file in audio_files:
-            logging.info(f"Sending {audio_file.get_name()}")
+            await self.bot.send_message(chat_id, f"Sending {audio_file.get_name()}")
             await self.bot.send_audio(chat_id, audio_file.get_data(), audio_file.get_name())
