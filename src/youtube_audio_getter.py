@@ -13,7 +13,7 @@ from src.audio_file import AudioFile
 
 class YoutubeAudioGetter(AudioGetter):
     def __init__(self):
-        self.__path = "../media/"
+        self.__path = "./"
         self.__part_len = 600
 
     def set_path(self, path):
