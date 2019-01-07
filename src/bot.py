@@ -12,7 +12,7 @@ from src.youtube_audio_getter import YoutubeAudioGetter
 
 class Bot:
     def __init__(self, token):
-        self.updater = Updater(token)
+        self.updater = Updater(token, request_kwargs={'read_timeout': 120, 'connect_timeout': 120})
         self.dispatcher = self.updater.dispatcher
 
         self.__handlers = {
