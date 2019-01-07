@@ -1,5 +1,4 @@
-aiogram==2.0
-aiohttp==3.5.1
+python-telegram-bot==11.1.0
 astroid==2.1.0
 async-timeout==3.0.1
 attrs==18.2.0

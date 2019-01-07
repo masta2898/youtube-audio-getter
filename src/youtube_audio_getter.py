@@ -50,7 +50,6 @@ class YoutubeAudioGetter(AudioGetter):
 
         return part_name, target_name
 
-
     def __get_random_string(self, len: int):
         return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(len))
 
@@ -63,26 +62,18 @@ class YoutubeAudioGetter(AudioGetter):
         path = self.get_path()
 
         video_len, video_title, video_name = self.__download_video(url)
-
         end_part = video_len if part_len >= video_len else part_len
-
         segment_nums = int((video_len / 60) // (part_len / 60) + 1)
 
         for segment_num in range(segment_nums):
-
             part_name, target_name = self.__cut_video(path, video_title, video_name, start_part, end_part)
-
             start_part = end_part
-
             end_part += part_len
 
             if end_part > video_len:
                 end_part = video_len
 
-            with open(target_name, "rb") as file:
-                audio_files.append(AudioFile(part_name, file.read()))
-
-            os.remove(target_name)
+            audio_files.append(AudioFile(part_name, target_name))
 
         logging.info(f"Removing old file {path} with {video_name}")
         os.remove("{0}{1}.{2}".format(path, video_name, "mp4"))
